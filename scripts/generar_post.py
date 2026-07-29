@@ -137,7 +137,7 @@ def generar():
         'id': f'bot-{ahora.strftime("%Y%m%d%H%M")}',
         'title': titulo,
         'slug': slug,
-        'link': f'https://www.blogdetrauma.com/{slug}/',
+        'link': f'https://blogdetrauma.com/{slug}/',
         'pubdate': ahora.strftime('%a, %d %b %Y %H:%M:%S +0000'),
         'postdate': ahora.strftime('%Y-%m-%d %H:%M:%S'),
         'status': 'publish',

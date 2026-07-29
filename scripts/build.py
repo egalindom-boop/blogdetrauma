@@ -9,7 +9,7 @@ from clean import clean_content, make_excerpt, format_date_es, slugify
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = os.environ.get('SITE_OUT', os.path.join(ROOT, 'site'))
 RAW_IMAGES = os.path.join(ROOT, 'raw_images')
-DOMAIN = 'https://www.blogdetrauma.com'
+DOMAIN = 'https://blogdetrauma.com'
 
 CATEGORY_ORDER = [
     'Trauma', 'Fracturas', 'Artrosis', 'Artroscopia', 'Cirugía de Mano',
