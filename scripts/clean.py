@@ -43,6 +43,9 @@ def extract_youtube_id(block):
     return None
 
 
+DEAD_VIDEOS = {'I8zG0Oj5Li8'}  # videos eliminados de YouTube
+
+
 def replace_video_embeds(html):
     # existing iframe youtube/vimeo embeds -> normalize to responsive wrapper (do this
     # BEFORE the <object> pass below, since that pass also emits <iframe> tags and we
@@ -52,6 +55,8 @@ def replace_video_embeds(html):
         if 'youtube' not in block.lower() and 'vimeo' not in block.lower():
             return block
         vid = extract_youtube_id(block)
+        if vid in DEAD_VIDEOS:
+            return ''
         if vid:
             return (f'<div class="video-embed"><iframe src="https://www.youtube.com/embed/{vid}" '
                     f'title="Video" loading="lazy" allowfullscreen '
@@ -66,7 +71,7 @@ def replace_video_embeds(html):
     def obj_repl(m):
         block = m.group(0)
         vid = extract_youtube_id(block)
-        if not vid:
+        if not vid or vid in DEAD_VIDEOS:
             return ''
         return (f'<div class="video-embed"><iframe src="https://www.youtube.com/embed/{vid}" '
                 f'title="Video" loading="lazy" allowfullscreen '
@@ -138,14 +143,24 @@ def rewrite_img_tag(img_tag, available_images, used_images):
 
 def clean_content(html, available_images, used_images):
     html = html.replace('<!--more-->', '')
-    # strip bare attribute-less <div> editor artifacts (legacy WP classic-editor cruft);
-    # stray unmatched </div> left behind are harmless, browsers ignore them
-    html = re.sub(r'<div>\s*', '', html, flags=re.I)
+    # strip div/span/font editor artifacts (legacy WP classic-editor cruft)
+    html = re.sub(r'<div[^>]*>\s*', '', html, flags=re.I)
+    html = re.sub(r'</div>', '', html, flags=re.I)
+    # unwrap span/font keeping inner text
+    for _ in range(4):
+        html = re.sub(r'<span[^>]*>(.*?)</span>', r'\1', html, flags=re.S | re.I)
+        html = re.sub(r'<font[^>]*>(.*?)</font>', r'\1', html, flags=re.S | re.I)
+    # &nbsp; -> space
+    html = html.replace('&nbsp;', ' ')
+    # internal links -> relative (keep SEO juice in-site)
+    html = re.sub(r'href="https?://(?:www\.)?blogdetrauma\.com/?([^"]*)"', r'href="/\1"', html)
     html = replace_video_embeds(html)
     html = process_images(html, available_images, used_images)
+    # strip inline styles/attributes from paragraphs and headings
+    html = re.sub(r'<(p|h[1-6]|li|ul|ol|blockquote)\s+[^>]*>', r'<\1>', html, flags=re.I)
     html = wpautop(html)
-    # drop empty/whitespace-only paragraphs (e.g. leftover &nbsp; spacers)
-    html = re.sub(r'<p[^>]*>(?:&nbsp;|\s)*</p>', '', html)
+    # drop empty/whitespace-only paragraphs (e.g. leftover spacers)
+    html = re.sub(r'<p[^>]*>(?:&nbsp;|\s|<br\s*/?>)*</p>', '', html, flags=re.I)
     html = re.sub(r'\n{3,}', '\n\n', html)
     return html.strip()
 
