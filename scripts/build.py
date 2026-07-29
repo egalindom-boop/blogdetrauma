@@ -129,7 +129,8 @@ a:hover{text-decoration:underline}
 .footer-bottom{border-top:1px solid rgba(255,255,255,.15);margin-top:34px;padding-top:18px;font-size:.85rem;color:#9fb8d4;text-align:center}
 
 /* Cookie bar */
-#cookie-bar{position:fixed;bottom:0;left:0;right:0;background:#132a42;color:#e4edf7;padding:14px 20px;display:none;z-index:1000;box-shadow:0 -2px 14px rgba(0,0,0,.3)}
+#cookie-bar{position:fixed;bottom:0;left:0;right:0;background:#132a42;color:#e4edf7;padding:14px 20px;z-index:1000;box-shadow:0 -2px 14px rgba(0,0,0,.3);transform:translateY(110%);transition:transform .3s ease}
+#cookie-bar.visible{transform:translateY(0)}
 #cookie-bar .cb-inner{max-width:var(--max);margin:0 auto;display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:space-between}
 #cookie-bar p{font-size:.88rem;margin:0;flex:1 1 400px}
 #cookie-bar a{color:#8fc1f0;text-decoration:underline}
@@ -155,11 +156,11 @@ COOKIE_JS = r"""
   if(v==='accepted'){loadGA();}
   else if(v!=='rejected'){
     var bar=document.getElementById('cookie-bar');
-    if(bar){bar.style.display='block';}
+    if(bar){bar.classList.add('visible');}
   }
   var a=document.getElementById('cb-accept'),r=document.getElementById('cb-reject');
-  if(a)a.addEventListener('click',function(){try{localStorage.setItem(KEY,'accepted');}catch(e){}loadGA();document.getElementById('cookie-bar').style.display='none';});
-  if(r)r.addEventListener('click',function(){try{localStorage.setItem(KEY,'rejected');}catch(e){}document.getElementById('cookie-bar').style.display='none';});
+  if(a)a.addEventListener('click',function(){try{localStorage.setItem(KEY,'accepted');}catch(e){}loadGA();document.getElementById('cookie-bar').classList.remove('visible');});
+  if(r)r.addEventListener('click',function(){try{localStorage.setItem(KEY,'rejected');}catch(e){}document.getElementById('cookie-bar').classList.remove('visible');});
 })();
 """
 
