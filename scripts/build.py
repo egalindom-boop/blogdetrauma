@@ -444,7 +444,17 @@ def build():
         tags = ', '.join(t['name'] for t in p['tags'])
         canonical = f'{DOMAIN}/{p["slug"]}/'
         og_img = f'<meta property="og:image" content="{DOMAIN}{p["og_image"]}">' if p['og_image'] else ''
-        extra = f"""<meta property="og:title" content="{p['title']}">
+        cat_principal = next((c['name'] for c in p['categories'] if c['name'] != 'Sin categoría'), 'Trauma')
+        breadcrumb = json.dumps({
+            '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+            'itemListElement': [
+                {'@type': 'ListItem', 'position': 1, 'name': 'Inicio', 'item': DOMAIN + '/'},
+                {'@type': 'ListItem', 'position': 2, 'name': cat_principal, 'item': f'{DOMAIN}/categoria/{slugify(cat_principal)}/'},
+                {'@type': 'ListItem', 'position': 3, 'name': p['title'], 'item': canonical},
+            ],
+        }, ensure_ascii=False)
+        extra = f"""<script type="application/ld+json">{breadcrumb}</script>
+<meta property="og:title" content="{p['title']}">
 <meta property="og:description" content="{p['excerpt']}">
 <meta property="og:type" content="article">
 <meta property="og:url" content="{canonical}">
