@@ -312,6 +312,37 @@ def post_card(p):
 """
 
 
+
+def _hacer_exportador():
+    """Convierte jpg/png a WebP (max 1200px de ancho); si no hay Pillow, copia tal cual."""
+    try:
+        from PIL import Image
+    except ImportError:
+        Image = None
+
+    def exportar(src, destdir, basename):
+        stem, dot, ext = basename.rpartition('.')
+        ext = ext.lower()
+        if Image is None or ext not in ('jpg', 'jpeg', 'png'):
+            shutil.copy2(src, os.path.join(destdir, basename))
+            return
+        try:
+            im = Image.open(src)
+            if im.mode in ('P', 'RGBA'):
+                im = im.convert('RGBA') if 'A' in im.getbands() else im.convert('RGB')
+        except Exception:
+            shutil.copy2(src, os.path.join(destdir, basename))
+            return
+        try:
+            if im.mode not in ('RGB', 'RGBA'):
+                im = im.convert('RGB')
+            if im.width > 1200:
+                im = im.resize((1200, int(im.height * 1200 / im.width)), Image.LANCZOS)
+            im.save(os.path.join(destdir, f'{stem}.webp'), 'WEBP', quality=82, method=4)
+        except Exception:
+            shutil.copy2(src, os.path.join(destdir, basename))
+    return exportar
+
 def build():
     posts = json.load(open(os.path.join(ROOT, 'posts.json'), encoding='utf-8'))
     available = set(f for f in os.listdir(RAW_IMAGES) if not f.startswith('.') and f != '__MACOSX')
@@ -350,11 +381,12 @@ def build():
     with open(os.path.join(SITE, 'js', 'cookies.js'), 'w') as f:
         f.write(COOKIE_JS)
 
-    # copy used images only
+    # copy used images only (convertidas a WebP)
+    exportar_imagen_optimizada = _hacer_exportador()
     for img in used_images:
         src = os.path.join(RAW_IMAGES, img)
         if os.path.exists(src):
-            shutil.copy2(src, os.path.join(SITE, 'images', img))
+            exportar_imagen_optimizada(src, os.path.join(SITE, 'images'), img)
 
     # categories
     from collections import Counter, defaultdict
