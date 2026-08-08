@@ -11,3 +11,38 @@
   for = "/css/*"
   [headers.values]
     Cache-Control = "public, max-age=604800"
+
+[[redirects]]
+from = "/tag/*"
+to = "/"
+status = 301
+
+[[redirects]]
+from = "/fractura-de-escafoides-tratamiento-con-cirugia-minimamente-invasiva/rx-fractura-escafoides/"
+to = "/fractura-de-escafoides-tratamiento-con-cirugia-minimamente-invasiva/"
+status = 301
+
+[[redirects]]
+from = "/accidente-durante-una-reyerta/seccion-tendon-flexor/"
+to = "/accidente-durante-una-reyerta/"
+status = 301
+
+[[redirects]]
+from = "/fibrosarcoma-tumor-maligno-en-antebrazo/cirugia-tumor-brazo-03/"
+to = "/fibrosarcoma-tumor-maligno-en-antebrazo/"
+status = 301
+
+[[redirects]]
+from = "/enfermedad-dupuytren/dupuytren04/"
+to = "/enfermedad-dupuytren/"
+status = 301
+
+[[redirects]]
+from = "/wp-admin/*"
+to = "/"
+status = 301
+
+[[redirects]]
+from = "/*/feed/"
+to = "/:splat/"
+status = 301
